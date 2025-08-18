@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { featuredLocations } from '../../data/mockData';
+import { useNavigate } from 'react-router-dom';
 
 export const FeaturedLocations: React.FC = () => {
+  const navigate =useNavigate();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -46,8 +48,8 @@ export const FeaturedLocations: React.FC = () => {
         >
           {featuredLocations.map((location, index) => (
             <motion.div key={location.name} variants={itemVariants}>
-              <Card className="group cursor-pointer h-full">
-                <div className="relative overflow-hidden">
+              <Card className="group cursor-pointer h-full" onClick={() => navigate(`/buy?location=${location.name}`)}>
+                <div className="relative overflow-hidden" >
                   <img
                     src={location.image}
                     alt={location.name}
@@ -87,6 +89,7 @@ export const FeaturedLocations: React.FC = () => {
           className="text-center mt-16"
         >
           <motion.button
+            onClick={() => navigate('/buy')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"

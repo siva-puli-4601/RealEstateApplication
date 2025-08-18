@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
             >
               <div className="flex items-center space-x-2 mb-4">
                 <Home className="h-8 w-8 text-blue-400" />
-                <span className="text-2xl font-bold">PSRHaven</span>
+                <span className="text-2xl font-bold">PSR-Heaven</span>
               </div>
               <p className="text-gray-400 mb-6">
                 Your trusted partner in finding the perfect home. We connect dreams with reality 

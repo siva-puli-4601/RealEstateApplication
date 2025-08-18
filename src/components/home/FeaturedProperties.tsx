@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Bed, Bath, Square, MapPin, Heart } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { mockProperties } from '../../data/mockData';
+import { useNavigate } from 'react-router-dom';
 
 export const FeaturedProperties: React.FC = () => {
+  const navigate = useNavigate();
   const featuredProperties = mockProperties.filter(property => property.featured);
 
   const containerVariants = {
@@ -48,7 +50,7 @@ export const FeaturedProperties: React.FC = () => {
         >
           {featuredProperties.map((property) => (
             <motion.div key={property.id} variants={itemVariants}>
-              <Card className="group cursor-pointer">
+              <Card className="group cursor-pointer" onClick={()=> navigate(`/property/${property.id}`)}>
                 <div className="relative overflow-hidden">
                   <img
                     src={property.images[0]}

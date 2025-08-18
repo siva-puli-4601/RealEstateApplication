@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, TrendingUp, Bed, Bath, Square } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { mockProperties } from '../../data/mockData';
+import { useNavigate } from 'react-router-dom';
 
 export const TrendingProperties: React.FC = () => {
+  const navigate = useNavigate();
   const trendingProperties = mockProperties.filter(property => property.trending);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -49,7 +51,7 @@ export const TrendingProperties: React.FC = () => {
                 className="grid grid-cols-1 lg:grid-cols-2 gap-8"
               >
                 {trendingProperties.slice(currentIndex, currentIndex + 2).map((property, index) => (
-                  <Card key={property.id} className="group cursor-pointer">
+                  <Card key={property.id} className="group cursor-pointer" onClick={() => navigate(`/property/${property.id}`)}>
                     <div className="relative overflow-hidden">
                       <img
                         src={property.images[0]}

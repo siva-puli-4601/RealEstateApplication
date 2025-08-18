@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, MapPin, DollarSign, Home } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export const HeroSection: React.FC = () => {
+    const navigate = useNavigate();
     const [searchData, setSearchData] = useState({
         location: '',
         priceRange: '',
@@ -11,7 +13,17 @@ export const HeroSection: React.FC = () => {
     });
 
     const handleSearch = () => {
-        console.log('Search:', searchData);
+        // Navigate to buy page with search parameters
+        const params = new URLSearchParams();
+        if (searchData.location) params.set('location', searchData.location);
+        if (searchData.priceRange) params.set('priceRange', searchData.priceRange);
+        if (searchData.propertyType) params.set('propertyType', searchData.propertyType);
+
+        navigate(`/buy?${params.toString()}`);
+    };
+
+    const handleQuickAction = (action: string) => {
+        navigate(`/${action.toLowerCase()}`);
     };
 
     return (
@@ -32,20 +44,18 @@ export const HeroSection: React.FC = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="text-4xl md:text-6xl font-bold text-white mb-6"
+                        className="text-4xl md:text-6xl font-bold text-slate-700 mb-6"
                     >
                         Find Your Dream
                         <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.8 }}
-                            className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400"
+                            initial={{ backgroundPosition: "0% 50%" }}
+                            animate={{ backgroundPosition: "200% 50%" }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-[length:200%_200%]"
                         >
                             Home Today
                         </motion.span>
                     </motion.h1>
-
-
                     {/* Search Bar */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -118,14 +128,13 @@ export const HeroSection: React.FC = () => {
                             <div className="flex items-end">
                                 <Button
                                     onClick={handleSearch}
-                                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center"
+                                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center gap-2"
                                     size="lg"
                                 >
-                                    <Search className="h-5 w-5 mr-2" />
-                                    <span className="leading-none">Search</span>
+                                    <Search className="h-5 w-5" />
+                                    <span>Search</span>
                                 </Button>
                             </div>
-
                         </div>
                     </motion.div>
 
@@ -139,9 +148,10 @@ export const HeroSection: React.FC = () => {
                         {['Buy', 'Rent', 'Sell'].map((action, index) => (
                             <motion.button
                                 key={action}
+                                onClick={() => handleQuickAction(action)}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="px-6 py-3 bg-white bg-opacity-20 backdrop-blur-sm text-gray-800 rounded-full hover:bg-opacity-30 transition-all duration-200"
+                                className="px-6 py-3 bg-white bg-opacity-20 backdrop-blur-sm text-gray-700 rounded-full hover:bg-opacity-30 transition-all duration-200"
                             >
                                 {action} Properties
                             </motion.button>
