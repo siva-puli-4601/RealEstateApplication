@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Bed, Bath, Square, MapPin, Heart, Eye } from 'lucide-react';
 import { Property } from '../../types';
 import { Card } from './Card';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface PropertyCardProps {
   property: Property;
@@ -14,6 +15,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   property, 
   showAgent = true 
 }) => {
+  const { user, toggleBookmark, isBookmarked } = useAuth();
+  const bookmarked = isBookmarked(property.id);
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (user) {
+      toggleBookmark(property.id);
+    }
+  };
+
   return (
     <Card className="group cursor-pointer">
       <Link to={`/property/${property.id}`}>
@@ -44,12 +56,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
+              onClick={handleBookmarkClick}
             >
-              <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
+              <Heart className={`h-5 w-5 transition-colors ${
+                bookmarked 
+                  ? 'text-red-500 fill-red-500' 
+                  : 'text-gray-600 hover:text-red-500'
+              }`} />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.1 }}

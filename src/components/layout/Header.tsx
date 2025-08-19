@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Menu, X, User, Heart, Search } from 'lucide-react';
+import { Home, Menu, X, User, Heart, Search, LogOut } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Header: React.FC = () => {
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const MotionLink = motion(Link);
 
@@ -41,6 +44,7 @@ export const Header: React.FC = () => {
             {navItems.map((item) => (
               <MotionLink
                 key={item.name}
+                
                 to={item.href}
                 whileHover={{ scale: 1.05 }}
                 className={`font-medium transition-colors ${
@@ -50,27 +54,77 @@ export const Header: React.FC = () => {
                 }`}
               >
                 {item.name}
-              </MotionLink>
+             </MotionLink>
             ))}
           </nav>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              <Heart className="h-5 w-5" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              <User className="h-5 w-5" />
-            </motion.button>
-            <Button>Sign In</Button>
+            {user ? (
+              <>
+                <Link to="/profile">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </motion.button>
+                </Link>
+                
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <img
+                      src={user.avatar || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span className="text-gray-700 font-medium">{user.name}</span>
+                  </motion.button>
+                  
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                    >
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" >
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button >
+                  <Link to="/register">Sign Up</Link>
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -107,7 +161,37 @@ export const Header: React.FC = () => {
               </Link>
             ))}
             <div className="px-4 pt-4 border-t border-gray-200">
-              <Button className="w-full">Sign In</Button>
+              {user ? (
+                <div className="space-y-2">
+                  <Link
+                    to="/profile"
+                    className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Button  className="w-full" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" onClick={() => setIsMenuOpen(false)}>
+                    <Link to="/register">Sign Up</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface ButtonProps {
@@ -9,6 +10,8 @@ interface ButtonProps {
   className?: string;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
+  as?: any;
+  to?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,7 +21,10 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   className = '',
   disabled = false,
-  type = 'button'
+  type = 'button',
+  as: Component = 'button',
+  to,
+  ...props
 }) => {
   const baseClasses = 'font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
@@ -34,8 +40,10 @@ export const Button: React.FC<ButtonProps> = ({
     lg: 'px-6 py-3 text-lg'
   };
 
+  const MotionComponent = motion(Component);
+
   return (
-    <motion.button
+    <MotionComponent
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className} ${
@@ -44,8 +52,10 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       type={type}
+      to={to}
+      {...props}
     >
       {children}
-    </motion.button>
+    </MotionComponent>
   );
 };

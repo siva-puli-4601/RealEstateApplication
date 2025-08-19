@@ -25,7 +25,7 @@ import { Property } from '../types';
   };
 
   useEffect(() => {
-    let filtered = [...properties];
+    let filtered = properties.filter(pro=>pro.category === 'buy');
 
     // Apply search query
     if (searchQuery) {
@@ -81,7 +81,7 @@ import { Property } from '../types';
   }, [searchQuery, sortBy, properties, initialFilters.location, initialFilters.propertyType, initialFilters.priceRange]);
 
   const handleApplyFilters = (filters: any) => {
-    let filtered = [...properties];
+    let filtered = properties.filter(pro=>pro.category === 'buy');
 
     // Apply all filters
     if (filters.minPrice) {
@@ -157,7 +157,7 @@ import { Property } from '../types';
           <div className="flex items-center space-x-4">
             <Button
               variant="outline"
-              onClick={() => setIsFilterOpen(true)}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
               className="flex items-center"
             >
               <Filter className="h-4 w-4 mr-2" />

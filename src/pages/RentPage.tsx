@@ -22,7 +22,7 @@ const RentPage: React.FC = () => {
     }));
 
     useEffect(() => {
-        let filtered = [...rentalProperties];
+         let filtered = rentalProperties.filter(pro=>pro.category === 'rent');
 
         // Apply search query
         if (searchQuery) {

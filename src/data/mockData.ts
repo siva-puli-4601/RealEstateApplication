@@ -71,7 +71,7 @@ export const mockProperties: Property[] = [
     parking: 1,
     agent: mockAgents[1],
     coordinates: { lat: 40.7589, lng: -73.9851 },
-    category: 'sell'
+    category: 'buy'
   },
   {
     id: '3',

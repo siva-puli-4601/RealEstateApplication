@@ -4,7 +4,7 @@ import { Calculator, Home, TrendingUp, MapPin, Calendar, Wrench, DollarSign, Che
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 
- const SellPage: React.FC = () => {
+const SellPage: React.FC = () => {
   const [propertyData, setPropertyData] = useState({
     address: '',
     propertyType: '',
@@ -13,7 +13,7 @@ import { Card } from '../components/ui/Card';
     area: '',
     yearBuilt: '',
     condition: '',
-       renovations: [] as string[], 
+    renovations: [] as string[],
     lotSize: '',
     garage: ''
   });
@@ -43,33 +43,33 @@ import { Card } from '../components/ui/Card';
 
   const calculateEstimate = () => {
     setIsCalculating(true);
-    
+
     // Simulate calculation delay
     setTimeout(() => {
       // Basic calculation logic (simplified)
       let baseValue = 200000; // Base value
-      
+
       // Area factor
       if (propertyData.area) {
         baseValue += Number(propertyData.area) * 150;
       }
-      
+
       // Bedroom factor
       if (propertyData.bedrooms) {
         baseValue += Number(propertyData.bedrooms) * 25000;
       }
-      
+
       // Bathroom factor
       if (propertyData.bathrooms) {
         baseValue += Number(propertyData.bathrooms) * 15000;
       }
-      
+
       // Age factor
       if (propertyData.yearBuilt) {
-        const age = 2024 - Number(propertyData.yearBuilt);
+        const age = 2025 - Number(propertyData.yearBuilt);
         baseValue -= age * 1000; // Depreciation
       }
-      
+
       // Condition factor
       const conditionMultiplier = {
         'excellent': 1.2,
@@ -78,10 +78,10 @@ import { Card } from '../components/ui/Card';
         'poor': 0.85
       };
       baseValue *= conditionMultiplier[propertyData.condition as keyof typeof conditionMultiplier] || 1;
-      
+
       // Renovation bonus
       baseValue += propertyData.renovations.length * 15000;
-      
+
       // Property type factor
       const typeMultiplier = {
         'house': 1.0,
@@ -90,7 +90,7 @@ import { Card } from '../components/ui/Card';
         'apartment': 0.8
       };
       baseValue *= typeMultiplier[propertyData.propertyType as keyof typeof typeMultiplier] || 1;
-      
+
       setEstimatedValue(Math.round(baseValue));
       setIsCalculating(false);
     }, 2000);
@@ -143,7 +143,7 @@ import { Card } from '../components/ui/Card';
                     type="text"
                     placeholder="Enter your property address"
                     value={propertyData.address}
-                    onChange={(e) => setPropertyData({...propertyData, address: e.target.value})}
+                    onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -155,7 +155,7 @@ import { Card } from '../components/ui/Card';
                   </label>
                   <select
                     value={propertyData.propertyType}
-                    onChange={(e) => setPropertyData({...propertyData, propertyType: e.target.value})}
+                    onChange={(e) => setPropertyData({ ...propertyData, propertyType: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="">Select Type</option>
@@ -174,11 +174,11 @@ import { Card } from '../components/ui/Card';
                     </label>
                     <select
                       value={propertyData.bedrooms}
-                      onChange={(e) => setPropertyData({...propertyData, bedrooms: e.target.value})}
+                      onChange={(e) => setPropertyData({ ...propertyData, bedrooms: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">Select</option>
-                      {[1,2,3,4,5,6].map(num => (
+                      {[1, 2, 3, 4, 5, 6].map(num => (
                         <option key={num} value={num}>{num}</option>
                       ))}
                     </select>
@@ -189,11 +189,11 @@ import { Card } from '../components/ui/Card';
                     </label>
                     <select
                       value={propertyData.bathrooms}
-                      onChange={(e) => setPropertyData({...propertyData, bathrooms: e.target.value})}
+                      onChange={(e) => setPropertyData({ ...propertyData, bathrooms: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">Select</option>
-                      {[1,1.5,2,2.5,3,3.5,4,4.5,5].map(num => (
+                      {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
                         <option key={num} value={num}>{num}</option>
                       ))}
                     </select>
@@ -210,7 +210,7 @@ import { Card } from '../components/ui/Card';
                       type="number"
                       placeholder="e.g., 2000"
                       value={propertyData.area}
-                      onChange={(e) => setPropertyData({...propertyData, area: e.target.value})}
+                      onChange={(e) => setPropertyData({ ...propertyData, area: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
@@ -223,7 +223,7 @@ import { Card } from '../components/ui/Card';
                       type="number"
                       placeholder="e.g., 2010"
                       value={propertyData.yearBuilt}
-                      onChange={(e) => setPropertyData({...propertyData, yearBuilt: e.target.value})}
+                      onChange={(e) => setPropertyData({ ...propertyData, yearBuilt: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
@@ -236,7 +236,7 @@ import { Card } from '../components/ui/Card';
                   </label>
                   <select
                     value={propertyData.condition}
-                    onChange={(e) => setPropertyData({...propertyData, condition: e.target.value})}
+                    onChange={(e) => setPropertyData({ ...propertyData, condition: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="">Select Condition</option>
@@ -275,23 +275,24 @@ import { Card } from '../components/ui/Card';
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   size="lg"
                 >
-                  {isCalculating ? (
-                    <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="mr-2"
-                      >
+                  <div className="flex items-center justify-center gap-2">
+                    {isCalculating ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Calculator className="h-5 w-5" />
+                        </motion.div>
+                        <span>Calculating...</span>
+                      </>
+                    ) : (
+                      <>
                         <Calculator className="h-5 w-5" />
-                      </motion.div>
-                      Calculating...
-                    </>
-                  ) : (
-                    <>
-                      <Calculator className="h-5 w-5 mr-2" />
-                      Calculate Property Value
-                    </>
-                  )}
+                        <span>Calculate Property Value</span>
+                      </>
+                    )}
+                  </div>
                 </Button>
               </div>
             </Card>

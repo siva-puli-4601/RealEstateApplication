@@ -70,7 +70,7 @@ export const HeroSection: React.FC = () => {
                                     Location
                                 </label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                    <MapPin className="absolute left-3.5 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
                                         placeholder="Enter city or neighborhood"
@@ -87,7 +87,7 @@ export const HeroSection: React.FC = () => {
                                     Price Range
                                 </label>
                                 <div className="relative">
-                                    <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                    <DollarSign className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
                                     <select
                                         value={searchData.priceRange}
                                         onChange={(e) => setSearchData({ ...searchData, priceRange: e.target.value })}
@@ -109,7 +109,7 @@ export const HeroSection: React.FC = () => {
                                     Property Type
                                 </label>
                                 <div className="relative">
-                                    <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                    <Home className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
                                     <select
                                         value={searchData.propertyType}
                                         onChange={(e) => setSearchData({ ...searchData, propertyType: e.target.value })}
