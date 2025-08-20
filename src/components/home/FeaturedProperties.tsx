@@ -62,13 +62,13 @@ export const FeaturedProperties: React.FC = () => {
                       Featured
                     </span>
                   </div>
-                  <motion.button
+                  {/* <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all"
                   >
                     <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
-                  </motion.button>
+                  </motion.button> */}
                 </div>
                 
                 <div className="p-6">

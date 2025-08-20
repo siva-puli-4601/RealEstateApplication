@@ -39,7 +39,6 @@ function App() {
             <Route path="/buy" element={<BuyPage />} />
             <Route path="/rent" element={<RentPage />} />
             <Route path="/sell" element={<SellPage />} />
-            <Route path="/buy" element={<BuyPage />} />
             <Route path="/property/:id" element={<PropertyDetailsPage />} />
              <Route path="*" element={<NotFoundPage />} />
           </Routes>

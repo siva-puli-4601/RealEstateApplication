@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleBookmark = (propertyId: string) => {
-    if (!user) return;
+    if (!user) return ;
     
     const isCurrentlyBookmarked = user.savedProperties.includes(propertyId);
     const updatedBookmarks = isCurrentlyBookmarked

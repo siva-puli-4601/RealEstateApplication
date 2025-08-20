@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Heart, 
-  Share2, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Square, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Share2,
+  MapPin,
+  Bed,
+  Bath,
+  Square,
   Calendar,
   Car,
   Phone,
@@ -22,12 +22,89 @@ import {
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { mockProperties } from '../data/mockData';
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
- const PropertyDetailsPage: React.FC = () => {
+const mortgageSchema = z.object({
+  propertyPrice: z
+    .number()
+    .min(100000, "Property price must be at least ₹1,00,000"),
+  downPayment: z
+    .number()
+    .min(0, "Down payment cannot be negative"),
+  interestRate: z
+    .number()
+    .min(1, "Interest rate must be greater than 0")
+    .max(30, "Interest rate cannot exceed 30%"),
+  loanTerm: z.enum(["15", "20", "30"]),
+});
+
+type MortgageForm = z.infer<typeof mortgageSchema>;
+
+
+const PropertyDetailsPage: React.FC = () => {
+
+
+  const containerStyle = {
+    width: "100%",
+    height: "250px",
+    borderRadius: "12px",
+  };
+
+
+  const navigate = useNavigate();
+
   const { id } = useParams();
   const property = mockProperties.find(p => p.id === id);
+  const center = {
+    lat: property?.coordinates.lat,
+    lng: property?.coordinates.lng,
+  };
+  console.log(property);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'photos' | 'virtual' | '3d'>('photos');
+  const { isBookmarked, toggleBookmark } = useAuth();
+  const bookmarked = isBookmarked(property?.id || '');
+
+  const [result, setResult] = useState<any>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<MortgageForm>({
+    resolver: zodResolver(mortgageSchema),
+    defaultValues: {
+      propertyPrice: property ? property.price : 5000000,
+      downPayment: 100000,
+      interestRate: 6.5,
+      loanTerm: "30",
+    },
+  });
+
+  const onSubmit = (data: MortgageForm) => {
+    const loanAmount = data.propertyPrice - data.downPayment;
+    const monthlyRate = data.interestRate / 12 / 100;
+    const n = Number(data.loanTerm) * 12;
+
+    const emi =
+      (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, n)) /
+      (Math.pow(1 + monthlyRate, n) - 1);
+
+    const totalPayment = emi * n;
+    const totalInterest = totalPayment - loanAmount;
+
+    setResult({
+      loanAmount,
+      emi: emi.toFixed(2),
+      totalPayment: totalPayment.toFixed(2),
+      totalInterest: totalInterest.toFixed(2),
+    });
+  };
+
 
   if (!property) {
     return (
@@ -63,7 +140,7 @@ import { mockProperties } from '../data/mockData';
               className="w-full h-full object-cover"
             />
           )}
-          
+
           {viewMode === 'virtual' && (
             <div className="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
               <div className="text-center text-white">
@@ -76,7 +153,7 @@ import { mockProperties } from '../data/mockData';
               </div>
             </div>
           )}
-          
+
           {viewMode === '3d' && (
             <div className="w-full h-full bg-gradient-to-br from-green-900 to-blue-900 flex items-center justify-center">
               <div className="text-center text-white">
@@ -112,33 +189,30 @@ import { mockProperties } from '../data/mockData';
           <div className="absolute bottom-4 left-4 flex space-x-2">
             <button
               onClick={() => setViewMode('photos')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                viewMode === 'photos' 
-                  ? 'bg-white text-gray-900' 
-                  : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'photos'
+                ? 'bg-white text-gray-900'
+                : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
+                }`}
             >
               <Camera className="h-4 w-4 inline mr-1" />
               Photos
             </button>
             <button
               onClick={() => setViewMode('virtual')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                viewMode === 'virtual' 
-                  ? 'bg-white text-gray-900' 
-                  : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'virtual'
+                ? 'bg-white text-gray-900'
+                : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
+                }`}
             >
               <Play className="h-4 w-4 inline mr-1" />
               Virtual Tour
             </button>
             <button
               onClick={() => setViewMode('3d')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                viewMode === '3d' 
-                  ? 'bg-white text-gray-900' 
-                  : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === '3d'
+                ? 'bg-white text-gray-900'
+                : 'bg-black bg-opacity-50 text-white hover:bg-opacity-70'
+                }`}
             >
               <Eye className="h-4 w-4 inline mr-1" />
               3D Tour
@@ -147,8 +221,11 @@ import { mockProperties } from '../data/mockData';
 
           {/* Action Buttons */}
           <div className="absolute top-4 right-4 flex space-x-2">
-            <button className="p-3 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all">
-              <Heart className="h-5 w-5" />
+            <button onClick={() => toggleBookmark(property.id)} className="p-3 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all">
+              <Heart className={`h-5 w-5 transition-colors ${bookmarked
+                  ? 'text-red-500 fill-red-500'
+                  : 'text-gray-600 hover:text-red-500'
+                }`} />
             </button>
             <button className="p-3 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all">
               <Share2 className="h-5 w-5" />
@@ -179,15 +256,15 @@ import { mockProperties } from '../data/mockData';
                   <MapPin className="h-4 w-4 mr-1" />
                   <span>{property.location}</span>
                 </div>
-                
+
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
                   {property.title}
                 </h1>
-                
+
                 <div className="text-4xl font-bold text-blue-600 mb-6">
                   ${property.price.toLocaleString()}
                 </div>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <Bed className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -224,7 +301,7 @@ import { mockProperties } from '../data/mockData';
                 <p className="text-gray-700 leading-relaxed mb-6">
                   {property.description}
                 </p>
-                
+
                 <div className="grid grid-cols-2 gap-6 text-sm">
                   <div>
                     <span className="font-semibold text-gray-900">Property Type:</span>
@@ -265,11 +342,30 @@ import { mockProperties } from '../data/mockData';
             >
               <Card className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
-                <div className="h-64 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-12 w-12 text-blue-600 mx-auto mb-2" />
-                    <p className="text-gray-600">Interactive Map Coming Soon</p>
-                  </div>
+                <div className="h-64 rounded-lg overflow-hidden">
+                  <LoadScript googleMapsApiKey="AIzaSyC4qnSQGjxZ7fNx2VtTtj4QszFlSGUPogY">
+                    {property?.coordinates?.lat && property?.coordinates?.lng ? (
+                      <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={{
+                          lat: property.coordinates.lat,
+                          lng: property.coordinates.lng,
+                        }}
+                        zoom={10}
+                      >
+                        <Marker
+                          position={{
+                            lat: property.coordinates.lat,
+                            lng: property.coordinates.lng,
+                          }}
+                        />
+                      </GoogleMap>
+                    ) : (
+                      <div className="flex items-center justify-center h-64 text-gray-500">
+                        Loading map...
+                      </div>
+                    )}
+                  </LoadScript>
                 </div>
               </Card>
             </motion.div>
@@ -300,17 +396,19 @@ import { mockProperties } from '../data/mockData';
                 </div>
 
                 <div className="space-y-3">
-                  <Button className="w-full" size="lg">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Call Agent
+                  <Button className="w-full flex items-center justify-center gap-2" size="lg">
+                    <Phone className="h-4 w-4" />
+                    <span>Call Agent</span>
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Message
+
+                  <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    <span>Send Message</span>
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Schedule Viewing
+
+                  <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Schedule Viewing</span>
                   </Button>
                 </div>
               </Card>
@@ -324,39 +422,90 @@ import { mockProperties } from '../data/mockData';
             >
               <Card className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Mortgage Calculator</h3>
-                <div className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  {/* Property Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Property Price
+                    </label>
+                    <input
+                      type="number"
+                      {...register("propertyPrice", { valueAsNumber: true })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    {errors.propertyPrice && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.propertyPrice.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Down Payment */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Down Payment
                     </label>
                     <input
                       type="number"
-                      placeholder="20%"
+                      {...register("downPayment", { valueAsNumber: true })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                    {errors.downPayment && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.downPayment.message}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Interest Rate */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Interest Rate
+                      Interest Rate (%)
                     </label>
                     <input
                       type="number"
-                      placeholder="6.5%"
+                      step="0.1"
+                      {...register("interestRate", { valueAsNumber: true })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                    {errors.interestRate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.interestRate.message}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Loan Term */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Loan Term
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option>30 years</option>
-                      <option>15 years</option>
-                      <option>20 years</option>
+                    <select
+                      {...register("loanTerm")}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="30">30 years</option>
+                      <option value="20">20 years</option>
+                      <option value="15">15 years</option>
                     </select>
+                    {errors.loanTerm && (
+                      <p className="text-red-500 text-sm mt-1">{errors.loanTerm.message}</p>
+                    )}
                   </div>
-                  <Button className="w-full">Calculate Payment</Button>
-                </div>
+
+                  <Button type="submit" className="w-full">
+                    Calculate Payment
+                  </Button>
+                </form>
+                {result && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-lg font-semibold mb-2">Results</h4>
+                    <p>Loan Amount: ₹{result.loanAmount.toLocaleString()}</p>
+                    <p>Monthly EMI: ₹{result.emi}</p>
+                    <p>Total Payment: ₹{result.totalPayment}</p>
+                    <p>Total Interest: ₹{result.totalInterest}</p>
+                  </div>
+                )}
               </Card>
             </motion.div>
           </div>

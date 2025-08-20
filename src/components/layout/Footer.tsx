@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-blue-400 mr-3" />
-                <span className="text-gray-400">info@psrhaven.com</span>
+                <span className="text-gray-400">info@psrheaven.com</span>
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
               viewport={{ once: true }}
               className="text-gray-400 mb-4 md:mb-0"
             >
-              © 2024 VistaHaven. All rights reserved.
+              © 2025 PSR-Heaven. All rights reserved.
             </motion.p>
 
             {/* Social Links */}

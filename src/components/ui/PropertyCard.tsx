@@ -5,6 +5,7 @@ import { Bed, Bath, Square, MapPin, Heart, Eye } from 'lucide-react';
 import { Property } from '../../types';
 import { Card } from './Card';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface PropertyCardProps {
   property: Property;
@@ -15,14 +16,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   property, 
   showAgent = true 
 }) => {
+  const navigate=useNavigate();
   const { user, toggleBookmark, isBookmarked } = useAuth();
   const bookmarked = isBookmarked(property.id);
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (user) {
+    if (user) { 
       toggleBookmark(property.id);
+    }
+    else {
+      navigate('/login');
     }
   };
 
@@ -71,6 +76,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                navigate(`/property/${property.id}`);
               }}
             >
               <Eye className="h-5 w-5 text-gray-600 hover:text-blue-500" />
