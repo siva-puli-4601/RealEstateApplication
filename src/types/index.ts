@@ -50,7 +50,26 @@ export interface User {
   name: string;
   email: string;
   type: 'buyer' | 'agent' | 'admin';
+  password?: string; 
   avatar?: string;
   savedProperties: string[];
   savedSearches: SearchFilters[];
+  isActive?: boolean;
+  joinedDate?: string;
+  lastLogin?: string;
+}
+
+export interface AdminStats {
+  totalProperties: number;
+  totalUsers: number;
+  totalAgents: number;
+  activeListings: number;
+  pendingApprovals: number;
+}
+
+export interface AgentProperty extends Property {
+  status: 'active' | 'pending' | 'sold' | 'draft';
+  views: number;
+  inquiries: number;
+  dateAdded: string;
 }

@@ -8,7 +8,7 @@ export default defineConfig({
    plugins: [react(), tailwindcss()],
   //  server: {
   //   host: '172.17.15.52',
-  //   port: 4200, // you can change this
+  //   port: 4201, // you can change this
   // },
   resolve: {
     alias: {

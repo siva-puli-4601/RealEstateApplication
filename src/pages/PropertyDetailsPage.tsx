@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,8 +26,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { Property } from '../types';
 
 const mortgageSchema = z.object({
   propertyPrice: z
@@ -55,15 +55,13 @@ const PropertyDetailsPage: React.FC = () => {
     borderRadius: "12px",
   };
 
-
-  const navigate = useNavigate();
-
   const { id } = useParams();
-  const property = mockProperties.find(p => p.id === id);
-  const center = {
-    lat: property?.coordinates.lat,
-    lng: property?.coordinates.lng,
-  };
+  const [property, setProperty] = useState<Property | null>(null);
+
+  useEffect(() => {
+    const found = mockProperties.find(p => p.id === id);
+    setProperty(found ?? null);
+  }, [id]);
   console.log(property);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'photos' | 'virtual' | '3d'>('photos');
@@ -223,8 +221,8 @@ const PropertyDetailsPage: React.FC = () => {
           <div className="absolute top-4 right-4 flex space-x-2">
             <button onClick={() => toggleBookmark(property.id)} className="p-3 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all">
               <Heart className={`h-5 w-5 transition-colors ${bookmarked
-                  ? 'text-red-500 fill-red-500'
-                  : 'text-gray-600 hover:text-red-500'
+                ? 'text-red-500 fill-red-500'
+                : 'text-gray-600 hover:text-red-500'
                 }`} />
             </button>
             <button className="p-3 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-all">
@@ -343,29 +341,28 @@ const PropertyDetailsPage: React.FC = () => {
               <Card className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
                 <div className="h-64 rounded-lg overflow-hidden">
-                  <LoadScript googleMapsApiKey="AIzaSyC4qnSQGjxZ7fNx2VtTtj4QszFlSGUPogY">
-                    {property?.coordinates?.lat && property?.coordinates?.lng ? (
-                      <GoogleMap
-                        mapContainerStyle={containerStyle}
-                        center={{
-                          lat: property.coordinates.lat,
-                          lng: property.coordinates.lng,
+                  {property?.coordinates?.lat !== undefined && property?.coordinates?.lng !== undefined ? (
+                    <GoogleMap
+                      key={id}
+                      mapContainerStyle={containerStyle}
+                      center={{
+                        lat: Number(property.coordinates.lat),
+                        lng: Number(property.coordinates.lng),
+                      }}
+                      zoom={17}
+                    >
+                      <Marker
+                        position={{
+                          lat: Number(property.coordinates.lat),
+                          lng: Number(property.coordinates.lng),
                         }}
-                        zoom={10}
-                      >
-                        <Marker
-                          position={{
-                            lat: property.coordinates.lat,
-                            lng: property.coordinates.lng,
-                          }}
-                        />
-                      </GoogleMap>
-                    ) : (
-                      <div className="flex items-center justify-center h-64 text-gray-500">
-                        Loading map...
-                      </div>
-                    )}
-                  </LoadScript>
+                      />
+                    </GoogleMap>
+                  ) : (
+                    <div className="flex items-center justify-center h-64 text-gray-500">
+                      Loading map...
+                    </div>
+                  )}
                 </div>
               </Card>
             </motion.div>

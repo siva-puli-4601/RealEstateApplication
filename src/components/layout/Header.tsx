@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Menu, X, User, Heart, Search, LogOut } from 'lucide-react';
+import { Home, Menu, X, User, Heart, Search, LogOut,BarChart3 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, hasRole } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
@@ -101,6 +101,26 @@ export const Header: React.FC = () => {
                         <User className="h-4 w-4 mr-2" />
                         Profile
                       </Link>
+                      {hasRole('admin') && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      {hasRole('agent') && (
+                        <Link
+                          to="/agent/dashboard"
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          Agent Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           logout();
@@ -171,6 +191,26 @@ export const Header: React.FC = () => {
                     <User className="h-4 w-4 mr-2" />
                     Profile
                   </Link>
+                  {hasRole('admin') && (
+                    <Link
+                      to="/admin/dashboard"
+                      className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  {hasRole('agent') && (
+                    <Link
+                      to="/agent/dashboard"
+                      className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Agent Dashboard
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       logout();

@@ -6,12 +6,14 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { useAuth } from '../contexts/AuthContext';
 import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from '../firebase'; // 
+import { auth, provider, db } from '../firebase'; // 
+import { collection, addDoc, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login, isLoading,setUser,user } = useAuth();
+    const { login, isLoading, setUser, user } = useAuth();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -26,14 +28,27 @@ const LoginPage: React.FC = () => {
         try {
             const result = await signInWithPopup(auth, provider);
             const userdata = result.user;
-            const data={
-                 id: userdata.uid,
-                  name: userdata.providerData[0].displayName ?? "",
-                  email: userdata.providerData[0].email ?? "",
-                  type: "buyer" as "buyer",
-                  avatar: userdata.providerData[0].photoURL ?? "",
-                  savedProperties: [],
-                  savedSearches: [],
+            const userRef = doc(db, "users", userdata.uid); // Use UID as doc ID
+            const userSnap = await getDoc(userRef);
+            const data = {
+                id: userdata.uid,
+                name: userdata.providerData[0].displayName ?? "",
+                email: userdata.providerData[0].email ?? "",
+                type: "buyer" as "buyer",
+                avatar: userdata.providerData[0].photoURL ?? "",
+                savedProperties: [],
+                savedSearches: [],
+                isActive: true,
+                joinedDate: new Date().toISOString(),
+                lastLogin: new Date().toISOString()
+            }
+            if (!userSnap.exists()) {
+                await setDoc(userRef, data);
+            }
+            else {
+                await updateDoc(userRef, {
+                    lastLogin: new Date(),
+                });
             }
             setUser(data);
             navigate(from, { replace: true });

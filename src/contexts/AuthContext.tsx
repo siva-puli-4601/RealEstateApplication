@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
+import { db } from '../firebase';
+import { collection, addDoc, doc, setDoc, query, where, getDocs } from "firebase/firestore";
+
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +13,10 @@ interface AuthContextType {
   updateProfile: (userData: Partial<User>) => void;
   toggleBookmark: (propertyId: string) => void;
   isBookmarked: (propertyId: string) => boolean;
+  hasRole: (role: string) => boolean;
+  canAccess: (allowedRoles: string[]) => boolean;
   setUser: (user: User | null) => void;
+
 }
 
 interface RegisterData {
@@ -54,94 +60,107 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
+
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Mock authentication - in real app, this would be an API call
-    if (email && password) {
-      const mockUser: User = {
-        id: '1',
-        name: email.split('@')[0],
-        email,
-        type: 'buyer',
-        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-        savedProperties: [],
-        savedSearches: []
-      };
-      setUser(mockUser);
-      setIsLoading(false);
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email), where("password", "==", password));
+    const querySnapshot = await getDocs(q);
+    setIsLoading(false);
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      setUser(userData as User);
+      console.log("✅ Login successful for:", userData.email);
       return true;
     }
-    
-    setIsLoading(false);
-    return false;
-  };
 
-  const register = async (userData: RegisterData): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: userData.name,
-      email: userData.email,
-      type: userData.type,
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-      savedProperties: [],
-      savedSearches: []
-    };
-    
-    setUser(newUser);
-    setIsLoading(false);
-    return true;
-  };
+  else {
+  setIsLoading(false);
+  return false;
+  }
+};
 
-  const logout = () => {
-    setUser(null);
-  };
+const register = async (userData: RegisterData): Promise<boolean> => {
+  setIsLoading(true);
 
-  const updateProfile = (userData: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
-    }
-  };
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-  const toggleBookmark = (propertyId: string) => {
-    if (!user) return ;
-    
-    const isCurrentlyBookmarked = user.savedProperties.includes(propertyId);
-    const updatedBookmarks = isCurrentlyBookmarked
-      ? user.savedProperties.filter(id => id !== propertyId)
-      : [...user.savedProperties, propertyId];
-    
-    setUser({
-      ...user,
-      savedProperties: updatedBookmarks
-    });
+  const newUser: User = {
+    id: Date.now().toString(),
+    name: userData.name,
+    email: userData.email,
+    type: userData.type,
+    password: userData.password,
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
+    savedProperties: [],
+    savedSearches: [],
+    isActive: true,
+    joinedDate: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
   };
+  await addDoc(collection(db, "users"), newUser);
 
-  const isBookmarked = (propertyId: string): boolean => {
-    return user?.savedProperties.includes(propertyId) || false;
-  };
+  setUser(newUser);
+  setIsLoading(false);
+  return true;
+};
 
-  const value = {
-    user,
-    login,
-    register,
-    logout,
-    isLoading,
-    updateProfile,
-    toggleBookmark,
-    isBookmarked,
-    setUser
-  };
+const logout = () => {
+  setUser(null);
+};
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+const updateProfile = (userData: Partial<User>) => {
+  if (user) {
+    setUser({ ...user, ...userData });
+  }
+};
+
+const toggleBookmark = (propertyId: string) => {
+  if (!user) return;
+
+  const isCurrentlyBookmarked = user.savedProperties.includes(propertyId);
+  const updatedBookmarks = isCurrentlyBookmarked
+    ? user.savedProperties.filter(id => id !== propertyId)
+    : [...user.savedProperties, propertyId];
+
+  setUser({
+    ...user,
+    savedProperties: updatedBookmarks
+  });
+};
+
+const isBookmarked = (propertyId: string): boolean => {
+  return user?.savedProperties.includes(propertyId) || false;
+};
+
+const hasRole = (role: string): boolean => {
+  return user?.type === role;
+};
+
+const canAccess = (allowedRoles: string[]): boolean => {
+  return user ? allowedRoles.includes(user.type) : false;
+};
+
+const value = {
+  user,
+  login,
+  register,
+  logout,
+  isLoading,
+  updateProfile,
+  toggleBookmark,
+  isBookmarked,
+  hasRole,
+  canAccess,
+  setUser
+};
+
+return (
+  <AuthContext.Provider value={value}>
+    {children}
+  </AuthContext.Provider>
+);
 };
